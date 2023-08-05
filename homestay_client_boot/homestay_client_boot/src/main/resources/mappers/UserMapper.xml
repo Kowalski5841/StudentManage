@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.homestay.mapper.UserMapper">
+
+    <select id="login" parameterType="user" resultType="user">
+        select id ,
+               username,
+               password,
+               nickname,
+               type
+        from
+            h_user
+        where username = #{username} and type = #{type}
+    </select>
+
+    <select id="queryByName" parameterType="String" resultType="user">
+        select id ,
+               username,
+               password,
+               nickname,
+               type
+        from
+            h_user
+        where username = #{username}
+    </select>
+
+    <select id="queryAll" parameterType="user" resultType="user">
+        select username,
+               nickname
+        from h_user
+    </select>
+    <select id="queryTeacher" parameterType="user" resultType="user">
+        select username,
+               nickname,
+               password
+        from h_user
+        where type=2
+    </select>
+    <delete id="delByStudentNumber" parameterType="String">
+        delete from h_user where username=#{snum}
+    </delete>
+    <insert id="add" parameterType="user">
+        insert into h_user (username,password,nickname,type)
+        values (#{username},md5(#{password}),#{nickname},#{type})
+    </insert>
+
+    <insert id="addTeacher" parameterType="user">
+        insert into h_user(username,password,nickname,type)
+        values (#{username},md5(#{password}),#{nickname},2)
+    </insert>
+
+    <select id="queryDistByName" parameterType="dist" resultType="dist">
+        select
+            id,
+            pid,
+            level,
+            name
+        from
+            sys_district
+        where  level = #{level}
+        <if test="name!=null and name!=''">
+            and pid = (select id from sys_district where name =#{name})
+        </if>
+    </select>
+
+    <update id="update" parameterType="user">
+        update h_user
+        set password = md5(#{password})
+        where username = #{username}
+    </update>
+
+</mapper>

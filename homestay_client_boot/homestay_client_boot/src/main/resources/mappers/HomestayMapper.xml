@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.homestay.mapper.HomestayMapper">
+
+    <insert id="add" parameterType="homestay">
+        insert into homestay
+        values (null,
+                #{name},
+                #{area},
+                #{address},
+                #{starLevel},
+                #{score},
+                #{tag},
+                #{pic},
+                0,
+                #{introduce},
+                1,
+                #{studentNumber});
+    </insert>
+
+
+    <select id="select" parameterType="homestay" resultType="homestay">
+        select
+            id,
+            name,
+            area,
+            score,
+            pic,
+            tag,
+            introduce,
+            rooms,
+            uid,
+            address,
+            studentNumber
+        from
+            homestay
+        <where>
+                uid = 1
+            <if test="name!=null and name!=''">
+                and name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <delete id="del" parameterType="Integer">
+        delete from homestay where id =#{id}
+    </delete>
+
+    <update id="update" parameterType="homestay">
+        update homestay
+        set
+        name=#{name},
+        area=#{area},
+        address=#{address},
+        tag=#{tag},
+        pic=#{pic},
+        star_level = #{starLevel},
+        score=#{score},
+        rooms=#{rooms},
+        introduce=#{introduce}
+    where id = #{id}
+    </update>
+
+
+    <select id="queryById" parameterType="Integer" resultType="homestay">
+        select id,
+               name,
+               area,
+               score,
+               pic,
+               tag,
+               introduce,
+               rooms,
+               uid,
+               address,
+               studentNumber
+        from
+            homestay
+        where id = #{id}
+    </select>
+    <select id="queryByStudentNumber" parameterType="String" resultType="homestay">
+        select id,
+               name,
+               area,
+               score,
+               pic,
+               tag,
+               introduce,
+               rooms,
+               uid,
+               address,
+               studentNumber
+        from
+            homestay
+        where studentNumber = #{snum}
+    </select>
+    <select id="selectHomestay" parameterType="homestayVO" resultType="homestayVO">
+        select
+            id,
+            name,
+            area,
+            address,
+            star_level as starLevel,
+            score,
+            tag,
+            pic,
+            rooms,
+            introduce,
+            (select present_price from room_type
+                        where hid = homestay.id order by present_price limit 1) as price
+        from
+            homestay
+        <where>
+                address like concat('%',#{destination},'%')
+                and  (rooms - (select ifnull(sum(homestay_order.rooms),0) from homestay_order
+                                    where hid = homestay.id and check_in_time = #{checkInTime} and status !=3)) >= #{num}
+        <if test="keyword!=null and keyword!=''">
+            and (name like concat('%',#{keyword},'%') or
+            tag like concat ('%',#{keyword},'%') or
+            area like concat ('%',#{keyowrd},'%'))
+        </if>
+        </where>
+    </select>
+
+</mapper>
